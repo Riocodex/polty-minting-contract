@@ -2,9 +2,11 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract NFTCollection is ERC721 {
+contract NFTCollection is ERC721, ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -20,24 +22,18 @@ contract NFTCollection is ERC721 {
 
     constructor() ERC721("NFTCollection", "NFTC") {}
 
-    function safeMint(address to,string memory uri, uint256 royaltyPercentage) public {
+    function safeMint(address to, string memory uri, uint256 royaltyPercentage) public {
+        require(_tokenIdCounter.current() < 2, "Only two NFTs can be minted");
         require(_tokenIdCounter.current() <= MAX_SUPPLY, "I'm sorry we reached the cap");
         require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100");
         
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _mint(msg.sender, tokenId);
+        _safeMint(to, tokenId);
         
-        NFT memory newNFT = NFT(uri, msg.sender, royaltyPercentage);
+        NFT memory newNFT = NFT(uri, to, royaltyPercentage);
         nfts.push(newNFT);
-    }
-
-    function setRoyalties(uint256 tokenId, uint256 royaltyPercentage) public {
-        require(tokenId < nfts.length, "Token ID does not exist");
-        require(msg.sender == nfts[tokenId].owner, "Only the owner can set royalties");
-        require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100");
-        
-        nfts[tokenId].royaltyPercentage = royaltyPercentage;
+        _setTokenURI(tokenId, uri);
     }
 
     // The following functions are overrides required by Solidity.
