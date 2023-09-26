@@ -20,7 +20,7 @@ contract NFTCollection is ERC721 {
 
     constructor() ERC721("NFTCollection", "NFTC") {}
 
-    function safeMint(string memory uri, uint256 royaltyPercentage) public {
+    function safeMint(address to,string memory uri, uint256 royaltyPercentage) public {
         require(_tokenIdCounter.current() <= MAX_SUPPLY, "I'm sorry we reached the cap");
         require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100");
         
