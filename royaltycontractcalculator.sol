@@ -52,5 +52,24 @@ contract NFT is ERC721 {
      safeTransferFrom(from, to, tokenId, '');
    }
 
- 
+  function safeTransferFrom(
+    address from,
+    address to,
+    uint256 tokenId,
+    bytes memory _data
+  ) public override {
+    require(
+      _isApprovedOrOwner(_msgSender(), tokenId), 
+      'ERC721: transfer caller is not owner nor approved'
+    );
+    if(excludedList[from] == false) {
+      _payTxFee(from);
+    }
+    _safeTransfer(from, to, tokenId, _data);
+  }
+
+  function _payTxFee(address from) internal {
+    IERC20 token = IERC20(txFeeToken);
+    token.transferFrom(from, artist, txFeeAmount);
+  }
 }
