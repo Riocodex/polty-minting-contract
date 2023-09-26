@@ -23,7 +23,7 @@ contract NFTCollection is ERC721, ERC721Enumerable, ERC721URIStorage {
     constructor() ERC721("NFTCollection", "NFTC") {}
 
     function safeMint(address to, string memory uri, uint256 royaltyPercentage) public {
-        require(_tokenIdCounter.current() < 2, "Only two NFTs can be minted");
+        
         require(_tokenIdCounter.current() <= MAX_SUPPLY, "I'm sorry we reached the cap");
         require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100");
         
